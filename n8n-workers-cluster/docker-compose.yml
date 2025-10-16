@@ -1,0 +1,35 @@
+volumes:
+  n8n_storage:
+
+x-shared: &shared
+  restart: always
+  image: docker.n8n.io/n8nio/n8n
+  environment:
+    - DB_TYPE=postgresdb
+    - DB_POSTGRESDB_HOST=${DB_POSTGRESDB_HOST}
+    - DB_POSTGRESDB_PORT=${DB_POSTGRESDB_PORT}
+    - DB_POSTGRESDB_DATABASE=${POSTGRES_DB}
+    - DB_POSTGRESDB_USER=${POSTGRES_NON_ROOT_USER}
+    - DB_POSTGRESDB_PASSWORD=${POSTGRES_NON_ROOT_PASSWORD}
+    - EXECUTIONS_MODE=queue
+    - QUEUE_BULL_REDIS_HOST=${QUEUE_BULL_REDIS_HOST}
+    - QUEUE_HEALTH_CHECK_ACTIVE=true
+    - N8N_ENCRYPTION_KEY=${ENCRYPTION_KEY}
+  volumes:
+    - n8n_storage:/home/node/.n8n
+
+services:
+  n8n-worker-1:
+    <<: *shared
+    command: worker
+    container_name: n8n-worker-1
+
+  n8n-worker-2:
+    <<: *shared
+    command: worker
+    container_name: n8n-worker-2
+
+  n8n-worker-3:
+    <<: *shared
+    command: worker
+    container_name: n8n-worker-3
